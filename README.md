@@ -62,3 +62,20 @@ export function trigger(target,key) {
     }
 }
 ```
+
+### 1.4 runner函数
+
+在vue中使用effect会返回一个runner函数，这个runner函数就是effect里面的函数fn，若fn中存在返回值，可将返回值赋值给其他变量，进行某些手动操作。这里实现effect中的runner函数需要保证effect函数会return当前的fn，并且在effect函数中实例化了一个ReactvieEffect对象，因此要确保返回的fn的this指向effect实例而不是ReactiveEffect类。
+
+```JavaScript
+export function effect(fn) {
+    const _effect = new ReactiveEffect(fn);
+    _effect.run();
+    return _effect.run.bind(_effect);
+}
+```
+
+### 1.5 scheduler
+
+通过effect的第二个参数给的一个scheduler的fn(scheduler:fn)，当effect第一次执行时scheduler不会被调用，只有第一个参数fn会被调用，当响应式对象值改变时，effect就不会执行fn，而是执行scheduler。如果当执行runner时，会再次执行fn。
+当响应式对象值改变后，会调用trigger方法，因此只需要在trigger方法内判断是否存在scheduler即可。

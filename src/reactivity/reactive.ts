@@ -1,3 +1,4 @@
+import { track ,trigger} from "./effect";
 export function reactive(raw) {
     return new Proxy(raw,{
         get(target,key) {
@@ -6,9 +7,9 @@ export function reactive(raw) {
             return res;
         },
 
-        //TODO
         set(target,key,value) {
             const res = Reflect.set(target,key,value);
+            trigger(target,key);
             return res;
         }
     })

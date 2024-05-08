@@ -1,6 +1,6 @@
 # Mini Vue
 
-## 1. 依赖收集&依赖获取
+## 1. Effect
 
 ### 1.1 Proxy&Reflect
 
@@ -92,4 +92,26 @@ __onStop:__ 同时在effect内存在一个onStop参数，传入一个方法，�
  * Object.assign(target,...sources)用于将源对象复制到目标对象中
  */
     Object.assign(_effect,options);
+```
+
+## 2. Readonly
+
+readonly类似于reactive，但是需要控制传入的对象数值不能修改，同样使用Proxy来控制get和set。
+将重复的代码封装成高阶函数，返回getter和setter方法，同时将readonly和reactive的代码封装成两个handlers。在代码初始化的时候调用getter和setter。
+
+```JavaScript
+const get = createGetter();
+const set = createSetter();
+const readonlyGet = createGetter(true);
+// ... function createGetter and createSetter
+export const mutableHandlers = {
+    get,set
+}
+export const readonlyHandler = {
+    get:readonlyGet,
+    set(target,key,value) {
+        console.warn(`Key:${key} cannot be set, because Target: ${target} is readonly.`)
+        return true;
+    }
+}
 ```

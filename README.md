@@ -79,3 +79,17 @@ export function effect(fn) {
 
 通过effect的第二个参数给的一个scheduler的fn(scheduler:fn)，当effect第一次执行时scheduler不会被调用，只有第一个参数fn会被调用，当响应式对象值改变时，effect就不会执行fn，而是执行scheduler。如果当执行runner时，会再次执行fn。
 当响应式对象值改变后，会调用trigger方法，因此只需要在trigger方法内判断是否存在scheduler即可。
+
+### 1.6 stop
+
+reactivity API中包含一个stop函数，用于停止effect监听，当runner被执行时，fn会被触发。因此需要在effect中添加stop函数。首先在track方法中进行了依赖收集，将依赖存在了dep中，因此可以通过反向收集在effect中添加一个数组deps将dep添加到deps中，这样就可以在stop被调用时删除dep中对应的effect。
+__onStop:__ 同时在effect内存在一个onStop参数，传入一个方法，在调用stop时，onStop内的方法会被触发。由于会有很多options，因此使用Object.assign将对象合并。
+
+[Object Document](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object)
+
+```JavaScript
+/**
+ * Object.assign(target,...sources)用于将源对象复制到目标对象中
+ */
+    Object.assign(_effect,options);
+```

@@ -116,7 +116,7 @@ export const readonlyHandler = {
 }
 ```
 
-## 3.isReactive&isReadonly
+## 3. isReactive&isReadonly
 
 isReactive和isRreadonly方法用来判断变量是否为reactive响应式或者是只读变量。方法需要传入参数，利用代理对象的key可以判断是否为readonly。同时当传入的不是reactive也不是readonly，则无法通过Proxy的get返回布尔值，使用`!!`将返回值转换为布尔值。
 
@@ -134,3 +134,7 @@ export function isReadonly(value) {
     return !!value[ReactiveFlags.IS_READONLY];
 }
 ```
+
+## 4. Stop优化
+
+stop函数允许我们再调用后关闭相应的effect依赖，但是当前的stop有一个问题，在这样改变数值`obj.prop = 3`时，依赖不会被触发，而当使用`obj.prop++`，依赖则会被触发，这是因为使用obj.prop++等同于obj.prop=obj.prop+1，因此会触发代理对象的get进行依赖收集并在set时触发依赖。优化的方法就是设置一个全局变量shouldTrack来控制是否进行依赖收集。

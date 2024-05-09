@@ -115,3 +115,22 @@ export const readonlyHandler = {
     }
 }
 ```
+
+## 3.isReactive&isReadonly
+
+isReactive和isRreadonly方法用来判断变量是否为reactive响应式或者是只读变量。方法需要传入参数，利用代理对象的key可以判断是否为readonly。同时当传入的不是reactive也不是readonly，则无法通过Proxy的get返回布尔值，使用`!!`将返回值转换为布尔值。
+
+```JavaScript
+export const enum ReactiveFlags {
+    IS_REACTIVE='__v_isReactive',
+    IS_READONLY='__v_isReadonly'
+}
+
+export function isReactive(value) {
+    return !!value[ReactiveFlags.IS_REACTIVE];
+}
+
+export function isReadonly(value) {
+    return !!value[ReactiveFlags.IS_READONLY];
+}
+```

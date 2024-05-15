@@ -138,3 +138,7 @@ export function isReadonly(value) {
 ## 4. Stop优化
 
 stop函数允许我们再调用后关闭相应的effect依赖，但是当前的stop有一个问题，在这样改变数值`obj.prop = 3`时，依赖不会被触发，而当使用`obj.prop++`，依赖则会被触发，这是因为使用obj.prop++等同于obj.prop=obj.prop+1，因此会触发代理对象的get进行依赖收集并在set时触发依赖。优化的方法就是设置一个全局变量shouldTrack来控制是否进行依赖收集。
+
+## 5. Reactive和Readonly嵌套处理
+
+当reactive或readonly包裹的对象数值是多层对象时，需要保证每一层都为响应式或都为只读，因此需要在对象进行get操作时进行判断，判断get的值是否为对象，同时区分是否为只读（数组也是一种对象）。

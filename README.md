@@ -142,3 +142,14 @@ stop函数允许我们再调用后关闭相应的effect依赖，但是当前的s
 ## 5. Reactive和Readonly嵌套处理
 
 当reactive或readonly包裹的对象数值是多层对象时，需要保证每一层都为响应式或都为只读，因此需要在对象进行get操作时进行判断，判断get的值是否为对象，同时区分是否为只读（数组也是一种对象）。
+
+## 6. shallowReadonly 功能
+
+shallowReadonly允许设置包含浅层只读的对象，若对象是嵌套的对象则只会对第一层进行只读限制。
+在实现功能时使用到了之前封装的extend方法，shallowReadonlyHandler的值类似于readonlyHandler，因此使用extend方法进行合并，第一个参数为空对象，代表将后面两个参数合并之后再与空对象合并，这是因为在使用Object.assign（extend函数），合并的值会等于第一个参数，因为他们同时指向一个对象的地址。
+
+``` JavaScript
+export const shallowReadonlyHandler = extend({}, readonlyHandler, {
+    get: shallowReadonlyGet
+});
+```

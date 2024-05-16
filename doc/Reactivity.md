@@ -157,3 +157,13 @@ export const shallowReadonlyHandler = extend({}, readonlyHandler, {
 ## 7. isProxy 功能
 
 检查一个对象是否是由 reactive()、readonly()、shallowReactive() 或 shallowReadonly() 创建的代理。
+
+## 8. Ref 功能
+
+ref功能允许传入一个响应式的单值进行处理，同样也可以传入对象，若是对象则将其使用reactive包裹。因为ref传入的是单值，所以无法像reactive一样使用Proxy来进行get和set操作，因此需要将ref包裹到一个类的实例对象中，使用对象来进行get和set操作，同样的需要在get时收集依赖，在set时触发依赖。在ref中同样需要收集和触发依赖，与reactive不同的是，由于ref传入的是单值，因此只需要使用一个dep来存储依赖即可。
+
+判断修改的值前后是否相等用到了Object的一个API，与`==`不同的是，`is()`可以判断出数值的类型；与`===`不同的是，`===`会将+0和-0认为是相等，将NaN和NaN认为是不相等。
+
+```JavaScript
+Object.is(val,newVal)
+```

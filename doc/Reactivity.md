@@ -167,3 +167,7 @@ ref功能允许传入一个响应式的单值进行处理，同样也可以传�
 ```JavaScript
 Object.is(val,newVal)
 ```
+
+## 9. isRef & unref 功能
+
+isRef功能用来判断数值是否为ref。ref返回一个RefImpl的实例对象，因此直接在RefImpl类中添加一个字段__v_isRef并设置为true，这样即可判断是否为ref。unref用来返回ref的数值，是`return isRef(val) ? val.value : val`的语法糖。

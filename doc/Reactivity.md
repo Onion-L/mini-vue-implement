@@ -171,3 +171,7 @@ Object.is(val,newVal)
 ## 9. isRef & unref 功能
 
 isRef功能用来判断数值是否为ref。ref返回一个RefImpl的实例对象，因此直接在RefImpl类中添加一个字段__v_isRef并设置为true，这样即可判断是否为ref。unref用来返回ref的数值，是`return isRef(val) ? val.value : val`的语法糖。
+
+## 10. proxyRefs 功能
+
+在一个对象中包含ref值，使用proxyRefs包裹后可以不使用.value来访问该数值，这通常在Vue中的template经常使用到。实现该功能需要用到Proxy代理对象来进行get和set的拦截操作。

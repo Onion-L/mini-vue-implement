@@ -3,7 +3,8 @@ import { extend } from "../shared";
 //全局变量 
 let activeEffect;
 let shouldTrack;
-class ReactiveEffect {
+
+export class ReactiveEffect {
     private _fn: any;
     deps: any = [];
     onStop?: () => void;

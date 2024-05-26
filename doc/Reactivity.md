@@ -185,3 +185,5 @@ computed功能需要传入一个方法，如下：
             return user.age;
         });
 ```
+
+代码中的user是一个响应式数据，cValue等于user.age的值，在user.age值改变时，cValue也会改变。

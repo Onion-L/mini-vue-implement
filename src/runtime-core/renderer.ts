@@ -1,9 +1,9 @@
 import { createComponentInstance, setupComponent } from "./component";
 
-export function render(vnode: void, rootContainer: any) {
+export function render(vnode: any, rootContainer: any) {
     patch(vnode, rootContainer);
 }
-function patch(vnode: void, container: any) {
+function patch(vnode: any, container: any) {
     processComponent(vnode, container)
 }
 

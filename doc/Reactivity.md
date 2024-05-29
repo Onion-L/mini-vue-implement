@@ -187,3 +187,7 @@ computed功能需要传入一个方法，如下：
 ```
 
 代码中的user是一个响应式数据，cValue等于user.age的值，在user.age值改变时，cValue也会改变。
+
+## Component&Element 流程
+
+![alt text](Componen流程.png)

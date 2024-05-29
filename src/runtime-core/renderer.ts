@@ -1,11 +1,12 @@
 import { isObject } from "../shared/index";
+import { ShapeFlags } from "../shared/shapeFlags";
 import { createComponentInstance, setupComponent } from "./component";
 
 export function render(vnode: any, rootContainer: any) {
     patch(vnode, rootContainer);
 }
 function patch(vnode: any, container: any) {
-    //TODO 判断是组件还是元素
+    //判断是组件还是元素
     /**
      * if(isElement) {
      *  processElement(vnode,container)
@@ -13,13 +14,13 @@ function patch(vnode: any, container: any) {
      * processComponent(vnode,container)
      * }
      */
-    if (isObject(vnode.type)) {
-        processComponent(vnode, container)
-    } else if (typeof vnode.type === 'string') {
+
+    if (vnode.shapeFlag & ShapeFlags.ELEMENT) {
         processElement(vnode, container);
+    } else if (vnode.shapeFlag & ShapeFlags.STATEFUL_COMPONENT) {
+        processComponent(vnode, container)
     }
 }
-
 
 function processElement(vnode: any, container: any) {
     mountElement(vnode, container);
@@ -36,18 +37,18 @@ function mountElement(vnode: any, container: any) {
 
     //这里默认了children是string类型
     // el.textContent = children;
-    //但是也有可能是Array类型，在父节点下添加多个子节
-    if (typeof children === 'string') {
+    //但是也有可能是Array类 在父节点下添加多个子节
+    if (vnode.shapeFlag & ShapeFlags.TEXT_CHILDREN) {
         el.textContent = children;
-    } else if (Array.isArray(children)) {
+    } else if (vnode.shapeFlag & ShapeFlags.ARRAY_CHILDREN) {
         mountChildren(vnode, el);
     }
     container.appendChild(el);
 }
 
 function mountChildren(vnode, container) {
-    vnode.children.forEach(e => {
-        patch(e, container);
+    vnode.children.forEach(v => {
+        patch(v, container);
     });
 }
 

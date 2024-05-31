@@ -30,7 +30,11 @@ function mountElement(vnode: any, container: any) {
     const { type, props, children } = vnode;
     const el = (vnode.el = document.createElement(type));
     for (const key in props) {
-        if (props.hasOwnProperty(key)) {
+        if (key.startsWith('on')) {
+            const event = key.slice(2).toLowerCase();
+            const listener = props[key];
+            el.addEventListener(event, listener)
+        } else if (props.hasOwnProperty(key)) {
             el.setAttribute(key, props[key]);
         }
     }

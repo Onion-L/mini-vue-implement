@@ -1,26 +1,33 @@
 import { h } from "../../lib/mini-vue-implement.esm.js";
+import { Foo } from "./Foo.js";
+
 window.self = null;
 export const App = {
   render() {
     window.self = this;
-
-    // return h("div", { class: "head", id: "div-container" }, [
-    //   h("ul", { class: "list" }, [
-    //     h("li", { class: "red" }, "world"),
-    //     h("li", { class: "red" }, "world"),
-    //   ]),
-    //   h("p", { class: "blue" }, "world"),
-    // ]);
     return h(
       "div",
-      { class: "head", id: "div-container" },
-      `hello ${this.msg} ${this.message}`
+      {
+        class: "head",
+        id: "div-container",
+        onClick() {
+          console.log("click");
+        },
+        onMousedown() {
+          console.log("mouse down");
+        },
+        onMouseup() {
+          console.log("mouse up");
+        },
+      },
+      [h("div", {}, `hello ${this.msg} ${this.message}`), h(Foo, { count: 1 })]
     );
   },
   setup() {
     return {
       msg: "mini-vue",
       message: " world",
+      count: 1,
     };
   },
 };

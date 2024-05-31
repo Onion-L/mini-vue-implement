@@ -1,3 +1,4 @@
+import { isObject } from "../shared/index";
 import { mutableHandlers, readonlyHandler, shallowReadonlyHandler } from "./baseHandler";
 
 export const enum ReactiveFlags {
@@ -18,13 +19,21 @@ export function isProxy(value) {
 }
 
 export function reactive(raw) {
-    return new Proxy(raw, mutableHandlers);
+    return createProxyObject(raw, mutableHandlers);
 }
 
 export function readonly(raw) {
-    return new Proxy(raw, readonlyHandler);
+    return createProxyObject(raw, readonlyHandler);
 }
 
 export function shallowReadonly(raw) {
-    return new Proxy(raw, shallowReadonlyHandler);
+    return createProxyObject(raw, shallowReadonlyHandler);
+}
+
+function createProxyObject(target, baseHandler) {
+    if (!isObject(target)) {
+        console.warn(`target ${target} must be an Object type`);
+        return target;
+    }
+    return new Proxy(target, baseHandler);
 }

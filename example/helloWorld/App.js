@@ -1,4 +1,6 @@
 import { h } from "../../lib/mini-vue-implement.esm.js";
+import { Foo } from "./Foo.js";
+
 window.self = null;
 export const App = {
   render() {
@@ -18,13 +20,14 @@ export const App = {
           console.log("mouse up");
         },
       },
-      `hello ${this.msg} ${this.message}`
+      [h("div", {}, `hello ${this.msg} ${this.message}`), h(Foo, { count: 1 })]
     );
   },
   setup() {
     return {
       msg: "mini-vue",
       message: " world",
+      count: 1,
     };
   },
 };

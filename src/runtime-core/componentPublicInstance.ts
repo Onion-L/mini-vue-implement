@@ -1,16 +1,19 @@
-const pblicPorpertiesMap = {
+import { hasOwn } from "../shared/index";
+
+const publicPropertiesMap = {
     $el: (i) => i.vnode.el
 }
 
 export const coomponentPublicInstanceHandlers = {
     get({ _: instance }, key) {
-        const { setupState } = instance;
-        console.log(instance);
+        const { setupState, props } = instance;
 
-        if (key in setupState) {
+        if (hasOwn(setupState, key)) {
             return Reflect.get(setupState, key);
+        } else if (hasOwn(props, key)) {
+            return Reflect.get(props, key);
         }
-        const publicGetter = pblicPorpertiesMap[key];
+        const publicGetter = publicPropertiesMap[key];
         if (publicGetter) {
             return publicGetter(instance);
         }

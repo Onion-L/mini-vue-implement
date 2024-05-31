@@ -3,17 +3,21 @@ window.self = null;
 export const App = {
   render() {
     window.self = this;
-
-    // return h("div", { class: "head", id: "div-container" }, [
-    //   h("ul", { class: "list" }, [
-    //     h("li", { class: "red" }, "world"),
-    //     h("li", { class: "red" }, "world"),
-    //   ]),
-    //   h("p", { class: "blue" }, "world"),
-    // ]);
     return h(
       "div",
-      { class: "head", id: "div-container" },
+      {
+        class: "head",
+        id: "div-container",
+        onClick() {
+          console.log("click");
+        },
+        onMousedown() {
+          console.log("mouse down");
+        },
+        onMouseup() {
+          console.log("mouse up");
+        },
+      },
       `hello ${this.msg} ${this.message}`
     );
   },

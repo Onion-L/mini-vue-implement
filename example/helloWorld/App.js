@@ -5,7 +5,6 @@ window.self = null;
 export const App = {
   render() {
     window.self = this;
-    console.log(this.count);
 
     return h("div", {}, [
       h(
@@ -17,12 +16,19 @@ export const App = {
         },
         `hello ${this.msg} ${this.message} ${this.count}`
       ),
-      h(Foo, {
-        count: 1,
-        onCountAdd: (n = 1) => {
-          console.log("add", n);
+      h(
+        Foo,
+        {
+          count: 1,
+          onCountAdd: (n = 1) => {
+            console.log("add", n);
+          },
         },
-      }),
+        {
+          default: h("span", { class: "default" }, "default slot"),
+          header: h("div", null, "header slot"),
+        }
+      ),
     ]);
   },
   setup() {

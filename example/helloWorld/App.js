@@ -5,23 +5,25 @@ window.self = null;
 export const App = {
   render() {
     window.self = this;
-    return h(
-      "div",
-      {
-        class: "head",
-        id: "div-container",
-        onClick() {
-          console.log("click");
+    console.log(this.count);
+
+    return h("div", {}, [
+      h(
+        "div",
+        {
+          onClick() {
+            console.log("clicked");
+          },
         },
-        onMousedown() {
-          console.log("mouse down");
+        `hello ${this.msg} ${this.message} ${this.count}`
+      ),
+      h(Foo, {
+        count: 1,
+        onCountAdd: (n = 1) => {
+          console.log("add", n);
         },
-        onMouseup() {
-          console.log("mouse up");
-        },
-      },
-      [h("div", {}, `hello ${this.msg} ${this.message}`), h(Foo, { count: 1 })]
-    );
+      }),
+    ]);
   },
   setup() {
     return {

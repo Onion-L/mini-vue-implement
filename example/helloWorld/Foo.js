@@ -1,9 +1,15 @@
 import { h } from "../../dist/mini-vue-implement.esm.js"
-
+import { renderSlots } from "../../dist/mini-vue-implement.esm.js"
 export const Foo = {
 	setup() {},
 	render() {
-		const defaultSlot = this.$slots
-		return h("div", {}, [defaultSlot])
+		const foo = h("div", {}, "foo")
+		// h([h(), h()])
+		return h("div", {}, [foo, renderSlots(this.$slots)])
+		return h("div", {}, [
+			renderSlots(this.$slots, "header"),
+			foo,
+			renderSlots(this.$slots, "footer")
+		])
 	}
 }

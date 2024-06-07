@@ -1,4 +1,5 @@
 import { shallowReadonly } from "../reactivity/reactive"
+import { ShapeFlags } from "../shared/shapeFlags"
 import { emit } from "./componentEmit"
 import { initProps } from "./componentProps"
 import { componentPublicInstanceHandlers } from "./componentPublicInstance"
@@ -19,7 +20,6 @@ export function createComponentInstance(vnode) {
 }
 
 export function setupComponent(instance) {
-	//TODO initSlots
 	initSlots(instance, instance.vnode.children)
 	initProps(instance, instance.vnode.props)
 	setupStatefulComponent(instance)

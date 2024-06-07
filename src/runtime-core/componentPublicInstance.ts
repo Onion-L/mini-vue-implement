@@ -8,7 +8,6 @@ const publicPropertiesMap = {
 export const componentPublicInstanceHandlers = {
 	get({ _: instance }, key) {
 		const { setupState, props } = instance
-
 		if (hasOwn(setupState, key)) {
 			return Reflect.get(setupState, key)
 		} else if (hasOwn(props, key)) {
@@ -16,7 +15,6 @@ export const componentPublicInstanceHandlers = {
 		}
 		const publicGetter = publicPropertiesMap[key]
 		if (publicGetter) {
-			console.log(publicGetter)
 			return publicGetter(instance)
 		}
 	}

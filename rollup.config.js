@@ -1,16 +1,17 @@
 import typescript from "@rollup/plugin-typescript";
+import alias from '@rollup/plugin-alias';
 
 export default {
   input: "src/index.ts",
   output: [
     {
       format: "cjs",
-      file: "lib/mini-vue-implement.cjs.js",
+      file: "dist/mini-vue-implement.cjs.js",
     },
     {
       format: "es",
-      file: "lib/mini-vue-implement.esm.js",
+      file: "dist/mini-vue-implement.esm.js",
     },
   ],
-  plugins: [typescript()],
+  plugins: [typescript()]
 };

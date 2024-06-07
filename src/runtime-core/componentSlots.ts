@@ -1,3 +1,10 @@
 export function initSlots(instance, children) {
-    instance.slots = children || {};
+    
+    const slots = instance.slots = children || {};
+
+    console.log('children',instance.slots);
+    if(Array.isArray(slots)) {
+         
+    }
+
 }

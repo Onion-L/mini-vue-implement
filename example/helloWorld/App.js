@@ -10,15 +10,13 @@ export const App = {
 		 *  </slot>
 		 * </Foo>
 		 */
-		const headerSlot = h("div", null, "header slot")
-		const footerSlot = h("div", null, "footer slot")
 
 		const foo = h(
 			Foo,
 			{},
 			{
-				header: headerSlot,
-				footer: footerSlot
+				header: ({ age }) => h("div", null, "header slot " + age),
+				footer: () => h("div", null, "footer slot")
 			}
 		)
 

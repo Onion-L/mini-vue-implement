@@ -5,9 +5,9 @@ export const Foo = {
 	setup() {},
 	render() {
 		const foo = h("div", {}, "foo")
-
+		const age = 2
 		return h("div", {}, [
-			renderSlots(this.$slots, "header"),
+			renderSlots(this.$slots, "header", { age }),
 			foo,
 			renderSlots(this.$slots, "footer")
 		])

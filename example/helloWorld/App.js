@@ -11,6 +11,7 @@ export const App = {
 		 * </Foo>
 		 */
 
+		//作用域插槽
 		const foo = h(
 			Foo,
 			{},
@@ -20,7 +21,7 @@ export const App = {
 			}
 		)
 
-		return h("div", {}, [foo])
+		return h("div", null, [foo])
 	},
 	setup() {}
 }

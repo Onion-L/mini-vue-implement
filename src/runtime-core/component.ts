@@ -5,6 +5,7 @@ import { initProps } from "./componentProps"
 import { componentPublicInstanceHandlers } from "./componentPublicInstance"
 import { initSlots } from "./componentSlots"
 
+// vnode -> 需要用到的一系列属性 包括vnode 返回一个实例对象
 export function createComponentInstance(vnode) {
 	const component = {
 		vnode,

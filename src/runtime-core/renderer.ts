@@ -5,27 +5,37 @@ import { createComponentInstance, setupComponent } from "./component"
 export function render(vnode: any, rootContainer: any) {
 	patch(vnode, rootContainer)
 }
-function patch(vnode: any, container: any) {
-	//判断是组件还是元素
-	/**
-	 * if(isElement) {
-	 *  processElement(vnode,container)
-	 * }else {
-	 * processComponent(vnode,container)
-	 * }
-	 */
 
-	if (vnode.shapeFlag & ShapeFlags.ELEMENT) {
-		processElement(vnode, container)
-	} else if (vnode.shapeFlag & ShapeFlags.STATEFUL_COMPONENT) {
-		processComponent(vnode, container)
+// 递归调用 组件拆包 判断是组件还是元素 区分默认和Fragment
+function patch(vnode: any, container: any) {
+	const { shapeFlag, type } = vnode
+
+	switch (type) {
+		case "Fragment":
+			procressFragment(vnode, container)
+			break
+
+		default:
+			if (shapeFlag & ShapeFlags.ELEMENT) {
+				processElement(vnode, container)
+			} else if (shapeFlag & ShapeFlags.STATEFUL_COMPONENT) {
+				processComponent(vnode, container)
+			}
+			break
 	}
+}
+
+// 处理Fragment 只挂载children
+function procressFragment(vnode: any, container: any) {
+	console.log("Fragment", vnode.children)
+	mountChildren(vnode, container)
 }
 
 function processElement(vnode: any, container: any) {
 	mountElement(vnode, container)
 }
 
+// 将组件的元素渲染到页面上
 function mountElement(vnode: any, container: any) {
 	const { type, props, children } = vnode
 	const el = (vnode.el = document.createElement(type))
@@ -50,6 +60,7 @@ function mountElement(vnode: any, container: any) {
 	container.appendChild(el)
 }
 
+// 挂载children 变量children数组 递归调用patch(拆包)
 function mountChildren(vnode, container) {
 	vnode.children.forEach((v) => {
 		patch(v, container)
@@ -60,12 +71,14 @@ function processComponent(vnode: any, container: any) {
 	mountComponent(vnode, container)
 }
 
+// 挂载组件 创建组件实例 初始化组件以及调用组件的render方法
 function mountComponent(vnode: any, container: any) {
 	const instance = createComponentInstance(vnode)
 	setupComponent(instance)
 	setupRenderEffect(instance, vnode, container)
 }
 
+// 将组件的render方法的this指向proxy，实现this.$el, this.$slots的使用
 function setupRenderEffect(instance: any, vnode: any, container: any) {
 	const { proxy } = instance
 	const subTree = instance.render.call(proxy)

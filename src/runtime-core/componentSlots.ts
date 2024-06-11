@@ -3,7 +3,6 @@ import { ShapeFlags } from "../shared/shapeFlags"
 
 export function initSlots(instance, children) {
 	const { vnode } = instance
-	console.log(!!(vnode.shapeFlag & ShapeFlags.SLOT_CHILDREN))
 
 	if (!!(vnode.shapeFlag & ShapeFlags.SLOT_CHILDREN)) {
 		if (Array.isArray(children)) {

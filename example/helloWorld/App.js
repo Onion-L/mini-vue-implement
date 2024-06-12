@@ -1,35 +1,30 @@
-import { h } from "../../lib/mini-vue-implement.esm.js";
-import { Foo } from "./Foo.js";
+import { h, createTextVNode } from "../../dist/mini-vue-implement.esm.js"
+import { Foo } from "./Foo.js"
 
-window.self = null;
 export const App = {
-  render() {
-    window.self = this;
-    console.log(this.count);
+	render() {
+		/**
+		 * <Foo>
+		 *  <slot>
+		 *    <div>default slot</div>
+		 *  </slot>
+		 * </Foo>
+		 */
 
-    return h("div", {}, [
-      h(
-        "div",
-        {
-          onClick() {
-            console.log("clicked");
-          },
-        },
-        `hello ${this.msg} ${this.message} ${this.count}`
-      ),
-      h(Foo, {
-        count: 1,
-        onCountAdd: (n = 1) => {
-          console.log("add", n);
-        },
-      }),
-    ]);
-  },
-  setup() {
-    return {
-      msg: "mini-vue",
-      message: " world",
-      count: 1,
-    };
-  },
-};
+		//作用域插槽
+		const foo = h(
+			Foo,
+			{},
+			{
+				header: ({ age }) => [
+					h("div", null, "header slot " + age),
+					createTextVNode("hello world")
+				],
+				footer: () => h("div", null, "footer slot")
+			}
+		)
+
+		return h("div", null, [foo])
+	},
+	setup() {}
+}

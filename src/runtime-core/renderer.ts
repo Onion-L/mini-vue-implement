@@ -7,28 +7,28 @@ export function render(vnode: any, rootContainer: any) {
 }
 
 // 递归调用 组件拆包 判断是组件还是元素 区分默认和Fragment
-function patch(vnode: any, container: any) {
+function patch(vnode: any, container: any, parentComponent = null) {
 	const { shapeFlag, type } = vnode
 	switch (type) {
 		case Fragment:
-			procressFragment(vnode, container)
+			procressFragment(vnode, container, parentComponent)
 			break
 		case Text:
 			processText(vnode, container)
 			break
 		default:
 			if (shapeFlag & ShapeFlags.ELEMENT) {
-				processElement(vnode, container)
+				processElement(vnode, container, parentComponent)
 			} else if (shapeFlag & ShapeFlags.STATEFUL_COMPONENT) {
-				processComponent(vnode, container)
+				processComponent(vnode, container, parentComponent)
 			}
 			break
 	}
 }
 
 // 处理Fragment 只挂载children
-function procressFragment(vnode: any, container: any) {
-	mountChildren(vnode, container)
+function procressFragment(vnode: any, container: any, parentComponent) {
+	mountChildren(vnode, container, parentComponent)
 }
 
 function processText(vnode: any, container: any) {
@@ -37,12 +37,12 @@ function processText(vnode: any, container: any) {
 	container.append(el)
 }
 
-function processElement(vnode: any, container: any) {
-	mountElement(vnode, container)
+function processElement(vnode: any, container: any, parentComponent) {
+	mountElement(vnode, container, parentComponent)
 }
 
 // 将组件的元素渲染到页面上
-function mountElement(vnode: any, container: any) {
+function mountElement(vnode: any, container: any, parentComponent) {
 	const { type, props, children } = vnode
 	const el = (vnode.el = document.createElement(type))
 	for (const key in props) {
@@ -61,7 +61,7 @@ function mountElement(vnode: any, container: any) {
 	if (vnode.shapeFlag & ShapeFlags.TEXT_CHILDREN) {
 		el.textContent = children
 	} else if (vnode.shapeFlag & ShapeFlags.ARRAY_CHILDREN) {
-		mountChildren(vnode, el)
+		mountChildren(vnode, el, parentComponent)
 	}
 	container.appendChild(el)
 }
@@ -71,19 +71,19 @@ export function createTextVNode(text: string) {
 }
 
 // 挂载children 变量children数组 递归调用patch(拆包)
-function mountChildren(vnode, container) {
+function mountChildren(vnode, container, parentComponent) {
 	vnode.children.forEach((v) => {
-		patch(v, container)
+		patch(v, container, parentComponent)
 	})
 }
 
-function processComponent(vnode: any, container: any) {
-	mountComponent(vnode, container)
+function processComponent(vnode: any, container: any, parentComponent) {
+	mountComponent(vnode, container, parentComponent)
 }
 
 // 挂载组件 创建组件实例 初始化组件以及调用组件的render方法
-function mountComponent(vnode: any, container: any) {
-	const instance = createComponentInstance(vnode)
+function mountComponent(vnode: any, container: any, parentComponent) {
+	const instance = createComponentInstance(vnode, parentComponent)
 	setupComponent(instance)
 	setupRenderEffect(instance, vnode, container)
 }
@@ -92,6 +92,6 @@ function mountComponent(vnode: any, container: any) {
 function setupRenderEffect(instance: any, vnode: any, container: any) {
 	const { proxy } = instance
 	const subTree = instance.render.call(proxy)
-	patch(subTree, container)
+	patch(subTree, container, instance)
 	vnode.el = subTree.el
 }

@@ -67,7 +67,6 @@ function mountElement(vnode: any, container: any) {
 }
 
 export function createTextVNode(text: string) {
-	debugger
 	return createVNode(Text, null, text)
 }
 

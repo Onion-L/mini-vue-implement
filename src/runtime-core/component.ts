@@ -1,5 +1,4 @@
 import { shallowReadonly } from "../reactivity/reactive"
-import { ShapeFlags } from "../shared/shapeFlags"
 import { emit } from "./componentEmit"
 import { initProps } from "./componentProps"
 import { componentPublicInstanceHandlers } from "./componentPublicInstance"
@@ -35,10 +34,12 @@ function setupStatefulComponent(instance: any) {
 	const { setup } = Component
 	instance.proxy = new Proxy({ _: instance }, componentPublicInstanceHandlers)
 	if (setup) {
+		setCurrentInstance(instance)
 		const setupContext = createSetupContext(instance)
 		const setupResult = setup(shallowReadonly(instance.props), setupContext)
 		handleSetupResult(instance, setupResult)
 	}
+	setCurrentInstance(null)
 }
 
 function handleSetupResult(instance: any, setupResult: any) {
@@ -54,4 +55,14 @@ function finishComponentSetup(instance: any) {
 	if (Component.render) {
 		instance.render = Component.render
 	}
+}
+
+let currentInstance = null
+
+export function getCurrentInstance() {
+	return currentInstance
+}
+
+function setCurrentInstance(instance) {
+	currentInstance = instance
 }

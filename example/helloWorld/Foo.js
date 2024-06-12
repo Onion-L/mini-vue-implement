@@ -11,5 +11,6 @@ export const Foo = {
 			foo,
 			renderSlots(this.$slots, "footer")
 		])
+		// [h('div',null,[h(),'hello'],foo,footer)]
 	}
 }

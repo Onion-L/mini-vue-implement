@@ -1,6 +1,6 @@
-import { isObject } from "../shared/index"
 import { ShapeFlags } from "../shared/shapeFlags"
 import { createComponentInstance, setupComponent } from "./component"
+import { Fragment, createVNode, Text } from "./vnode"
 
 export function render(vnode: any, rootContainer: any) {
 	patch(vnode, rootContainer)
@@ -9,12 +9,13 @@ export function render(vnode: any, rootContainer: any) {
 // 递归调用 组件拆包 判断是组件还是元素 区分默认和Fragment
 function patch(vnode: any, container: any) {
 	const { shapeFlag, type } = vnode
-
 	switch (type) {
-		case "Fragment":
+		case Fragment:
 			procressFragment(vnode, container)
 			break
-
+		case Text:
+			processText(vnode, container)
+			break
 		default:
 			if (shapeFlag & ShapeFlags.ELEMENT) {
 				processElement(vnode, container)
@@ -27,8 +28,13 @@ function patch(vnode: any, container: any) {
 
 // 处理Fragment 只挂载children
 function procressFragment(vnode: any, container: any) {
-	console.log("Fragment", vnode.children)
 	mountChildren(vnode, container)
+}
+
+function processText(vnode: any, container: any) {
+	const { children } = vnode
+	const el = (vnode.el = document.createTextNode(children))
+	container.append(el)
 }
 
 function processElement(vnode: any, container: any) {
@@ -58,6 +64,11 @@ function mountElement(vnode: any, container: any) {
 		mountChildren(vnode, el)
 	}
 	container.appendChild(el)
+}
+
+export function createTextVNode(text: string) {
+	debugger
+	return createVNode(Text, null, text)
 }
 
 // 挂载children 变量children数组 递归调用patch(拆包)

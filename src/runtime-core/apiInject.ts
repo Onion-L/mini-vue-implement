@@ -1,18 +1,28 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { getCurrentInstance } from "./component"
 
+// 存储数据
 export function provide(key, value) {
 	const instance: any = getCurrentInstance()
-	console.log("provides", instance.provides, instance)
-
-	if (instance.provides) {
-		instance.provides[key] = value
+	// 将provides的数值存在instance上
+	if (instance) {
+		let { provides } = instance
+		const parentProvide = instance.parent ? instance.parent.provides : null
+		if (provides === parentProvide) {
+			provides = instance.provides = Object.create(parentProvide)
+		}
+		provides[key] = value
 	}
-	console.log(instance)
 }
 
-export function inject(key) {
+//provide 如果获取会返回父级的provide
+export function inject(key, defaultValue) {
 	const instance: any = getCurrentInstance()
-	console.log("instance123", instance.parent.parent)
-
-	return instance.parent.provides[key]
+	if (instance) {
+		if (key in instance.parent.provides) {
+			return instance.parent.provides[key]
+		} else if (defaultValue) {
+			return typeof defaultValue === "function" ? defaultValue() : defaultValue
+		}
+	}
 }

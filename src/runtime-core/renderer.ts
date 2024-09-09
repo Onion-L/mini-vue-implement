@@ -7,7 +7,7 @@ export function render(vnode: any, rootContainer: any) {
 }
 
 // 递归调用 组件拆包 判断是组件还是元素 区分默认和Fragment
-function patch(vnode: any, container: any, parentComponent = null) {
+function patch(vnode: any, container: any, parentComponent?) {
 	const { shapeFlag, type } = vnode
 	switch (type) {
 		case Fragment:

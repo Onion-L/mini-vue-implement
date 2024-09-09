@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { shallowReadonly } from "../reactivity/reactive"
 import { emit } from "./componentEmit"
 import { initProps } from "./componentProps"
@@ -12,7 +13,7 @@ export function createComponentInstance(vnode, parent) {
 		setupState: {},
 		props: {},
 		slots: {},
-		provides: {},
+		provides: parent ? parent.provides : {},
 		parent,
 		emit: () => {}
 	}

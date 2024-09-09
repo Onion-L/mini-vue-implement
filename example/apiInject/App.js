@@ -11,30 +11,34 @@ export const App = {
 		provide("bar", "hello Bar")
 	},
 	render() {
-		return h(Comsumer)
-	}
-}
-
-const Comsumer = {
-	render() {
-		console.log(this)
 		return h(Provide)
-	},
-	setup() {
-		const foo = inject("foo")
-		const bar = inject("bar")
-		return { foo, bar }
 	}
 }
 
 const Provide = {
 	render() {
-		console.log(this)
-		return h("div", null, `provide: ${this.foo} ${this.bar}`)
+		return h("div", null, [
+			createTextVNode(`provide: ${this.foo}`),
+			h(ProvideChild)
+		])
+	},
+	setup() {
+		provide("foo", "provide Two")
+		provide("coo", "hello cool")
+		const foo = inject("foo")
+		console.log("Provide", foo)
+		return { foo }
+	}
+}
+
+const ProvideChild = {
+	render() {
+		return h("div", null, `provide child: ${this.foo} ${this.bar} ${this.baz}`)
 	},
 	setup() {
 		const foo = inject("foo")
-		const bar = inject("bar")
-		return { foo, bar }
+		const bar = inject("bar", "default Bar")
+		const baz = inject("baz", () => "default Baz")
+		return { foo, bar, baz }
 	}
 }

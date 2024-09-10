@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { proxyRefs } from "../reactivity"
 import { shallowReadonly } from "../reactivity/reactive"
 import { emit } from "./componentEmit"
 import { initProps } from "./componentProps"
@@ -13,6 +14,8 @@ export function createComponentInstance(vnode, parent) {
 		setupState: {},
 		props: {},
 		slots: {},
+		isMounted: false,
+		subTree: {},
 		provides: parent ? parent.provides : {},
 		parent,
 		emit: () => {}
@@ -39,7 +42,9 @@ function setupStatefulComponent(instance: any) {
 	if (setup) {
 		setCurrentInstance(instance)
 		const setupContext = createSetupContext(instance)
+
 		const setupResult = setup(shallowReadonly(instance.props), setupContext)
+		console.log("setupResult", setupResult)
 		handleSetupResult(instance, setupResult)
 	}
 	setCurrentInstance(null)
@@ -48,7 +53,7 @@ function setupStatefulComponent(instance: any) {
 function handleSetupResult(instance: any, setupResult: any) {
 	//TODO function
 	if (typeof setupResult === "object") {
-		instance.setupState = setupResult
+		instance.setupState = proxyRefs(setupResult)
 	}
 	finishComponentSetup(instance)
 }

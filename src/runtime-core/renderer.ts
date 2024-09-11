@@ -7,7 +7,7 @@ import { createAppAPI } from "./createApp"
 import { Fragment, Text } from "./vnode"
 
 export function createRenderer(options) {
-	const { createElement, patchProps, insert } = options
+	const { createElement, patchProps: hostPatchProps, insert } = options
 	function render(vnode: any, rootContainer: any) {
 		patch(null, vnode, rootContainer)
 	}
@@ -49,25 +49,43 @@ export function createRenderer(options) {
 		if (!n1) {
 			mountElement(n2, container, parentComponent)
 		} else {
-			patchElement(n1, n2, container, parentComponent)
+			patchElement(n1, n2, container)
 		}
 	}
 
-	function patchElement(n1: any, n2: any, container: any, parentComponent) {
-		console.log("patchElement")
-		console.log(n1)
-		console.log(n2)
-		console.log("container", container)
-		console.log("parentComponent", parentComponent)
+	function patchElement(n1: any, n2: any, container: any) {
+		const oldProps = n1.props || {}
+		const newProps = n2.props || {}
+		const el = (n2.el = n1.el)
+		console.log("patchElement container", container)
+
+		patchProps(el, oldProps, newProps)
 	}
 
+	function patchProps(el, oldProps, newProps) {
+		if (oldProps !== newProps) {
+			for (const key in newProps) {
+				if (oldProps[key] !== newProps[key]) {
+					hostPatchProps(el, key, newProps[key])
+				}
+			}
+
+			if (Object.keys(oldProps).length > 0) {
+				for (const key in oldProps) {
+					if (!(key in newProps)) {
+						hostPatchProps(el, key, null)
+					}
+				}
+			}
+		}
+	}
 	// 将组件的元素渲染到页面上
 	function mountElement(n2: any, container: any, parentComponent) {
 		const { type, props, children } = n2
 		const el = (n2.el = createElement(type))
 		for (const key in props) {
 			const val = props[key]
-			patchProps(el, key, val)
+			hostPatchProps(el, key, val)
 		}
 
 		//这里默认了children是string类型

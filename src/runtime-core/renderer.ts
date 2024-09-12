@@ -59,7 +59,12 @@ export function createRenderer(options) {
 		const el = (n2.el = n1.el)
 		console.log("patchElement container", container)
 
+		const oldChidlren = n1.children
+		const newChildren = n2.children
+
 		patchProps(el, oldProps, newProps)
+		patchChildren(oldChidlren, newChildren, el)
+		// patch(null, n2, container, parentComponent)
 	}
 
 	function patchProps(el, oldProps, newProps) {
@@ -77,6 +82,18 @@ export function createRenderer(options) {
 					}
 				}
 			}
+		}
+	}
+
+	function patchChildren(oldChidlren: any, newChildren: any, el: any) {
+		if (oldChidlren.length === newChildren.length) {
+			newChildren.forEach((child, index) => {
+				if (child.type === oldChidlren[index].type) {
+					if (child.children !== oldChidlren[index].children) {
+						el.children[index].textContent = child.children
+					}
+				}
+			})
 		}
 	}
 	// 将组件的元素渲染到页面上
@@ -134,7 +151,6 @@ export function createRenderer(options) {
 				const prevSubTree = instance.subTree
 				instance.subTree = subTree
 				patch(prevSubTree, subTree, container, instance)
-				console.log("update")
 			}
 		})
 	}

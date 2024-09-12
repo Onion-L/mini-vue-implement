@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-this-alias */
 import { extend } from "../shared/index"
 
 //全局变量
@@ -73,8 +75,8 @@ export function isTracking() {
 }
 
 export function trigger(target, key) {
-	let depsMap = targetMap.get(target)
-	let dep = depsMap.get(key)
+	const depsMap = targetMap.get(target)
+	const dep = depsMap.get(key)
 	triggerEffects(dep)
 }
 

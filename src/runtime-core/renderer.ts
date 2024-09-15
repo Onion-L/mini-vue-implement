@@ -7,7 +7,13 @@ import { createAppAPI } from "./createApp"
 import { Fragment, Text } from "./vnode"
 
 export function createRenderer(options) {
-	const { createElement, patchProps: hostPatchProps, insert } = options
+	const {
+		createElement,
+		patchProps: hostPatchProps,
+		insert,
+		remove: hostRemove,
+		setElementText: hostSetElementText
+	} = options
 	function render(vnode: any, rootContainer: any) {
 		patch(null, vnode, rootContainer)
 	}
@@ -49,21 +55,18 @@ export function createRenderer(options) {
 		if (!n1) {
 			mountElement(n2, container, parentComponent)
 		} else {
-			patchElement(n1, n2, container)
+			patchElement(n1, n2, container, parentComponent)
 		}
 	}
 
-	function patchElement(n1: any, n2: any, container: any) {
+	function patchElement(n1: any, n2: any, container: any, parentComponent) {
 		const oldProps = n1.props || {}
 		const newProps = n2.props || {}
 		const el = (n2.el = n1.el)
 		console.log("patchElement container", container)
 
-		const oldChidlren = n1.children
-		const newChildren = n2.children
-
 		patchProps(el, oldProps, newProps)
-		patchChildren(oldChidlren, newChildren, el)
+		patchChildren(n1, n2, el, parentComponent)
 		// patch(null, n2, container, parentComponent)
 	}
 
@@ -85,17 +88,52 @@ export function createRenderer(options) {
 		}
 	}
 
-	function patchChildren(oldChidlren: any, newChildren: any, el: any) {
-		if (oldChidlren.length === newChildren.length) {
-			newChildren.forEach((child, index) => {
-				if (child.type === oldChidlren[index].type) {
-					if (child.children !== oldChidlren[index].children) {
-						el.children[index].textContent = child.children
-					}
+	function patchChildren(n1: any, n2: any, el: any, parentComponent) {
+		const oldChidlren = n1.children
+		const newChildren = n2.children
+
+		const prevShapeFlag = n1.shapeFlag
+		const shapeFlag = n2.shapeFlag
+
+		// Text -> Text
+		if (shapeFlag & ShapeFlags.TEXT_CHILDREN) {
+			if (oldChidlren !== newChildren) {
+				hostSetElementText(el, newChildren)
+			}
+		} else {
+			if (prevShapeFlag & ShapeFlags.TEXT_CHILDREN) {
+				hostSetElementText(el, "")
+				mountChildren(n2, el, parentComponent)
+			}
+		}
+
+		// Array -> Text
+		if (prevShapeFlag & ShapeFlags.ARRAY_CHILDREN) {
+			if (shapeFlag & ShapeFlags.TEXT_CHILDREN) {
+				unMountedChildren(n1)
+				hostSetElementText(el, newChildren)
+			} else if (shapeFlag & ShapeFlags.ARRAY_CHILDREN) {
+				if (oldChidlren.length === newChildren.length) {
+					newChildren.forEach((child, index) => {
+						if (child.type === oldChidlren[index].type) {
+							if (child.children !== oldChidlren[index].children) {
+								el.children[index].textContent = child.children
+							}
+						}
+					})
 				}
-			})
+			}
 		}
 	}
+
+	function unMountedChildren(n1: any) {
+		n1.children.forEach((child) => {
+			const el = child.el
+			hostRemove(el)
+			// el.parentNode.removeChild(el)
+		})
+	}
+
 	// 将组件的元素渲染到页面上
 	function mountElement(n2: any, container: any, parentComponent) {
 		const { type, props, children } = n2

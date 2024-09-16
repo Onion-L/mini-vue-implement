@@ -3,6 +3,7 @@ import { h } from "../../dist/mini-vue-implement.esm.js"
 import ArrayToText from "./ArrayToText.js"
 import TextToText from "./TextToText.js"
 import TextToArray from "./TextToArray.js"
+import ArrayToArray from "./ArrayToArray.js"
 
 export const App = {
 	render() {
@@ -10,7 +11,8 @@ export const App = {
 			h("p", null, "patchChildren："),
 			// h(ArrayToText)
 			// h(TextToText)
-			h(TextToArray)
+			// h(TextToArray)
+			h(ArrayToArray)
 		])
 	},
 	setup() {

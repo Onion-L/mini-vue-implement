@@ -10,7 +10,7 @@ export function createRenderer(options) {
 	const {
 		createElement,
 		patchProps: hostPatchProps,
-		insert,
+		insert: hostInsert,
 		remove: hostRemove,
 		setElementText: hostSetElementText
 	} = options
@@ -19,7 +19,7 @@ export function createRenderer(options) {
 	}
 
 	// 递归调用 组件拆包 判断是组件还是元素 区分默认和Fragment
-	function patch(n1: any, n2: any, container: any, parentComponent?) {
+	function patch(n1: any, n2: any, container: any, parentComponent?, anchor?) {
 		const { shapeFlag, type } = n2
 
 		switch (type) {
@@ -31,7 +31,7 @@ export function createRenderer(options) {
 				break
 			default:
 				if (shapeFlag & ShapeFlags.ELEMENT) {
-					processElement(n1, n2, container, parentComponent)
+					processElement(n1, n2, container, parentComponent, anchor)
 				} else if (shapeFlag & ShapeFlags.STATEFUL_COMPONENT) {
 					processComponent(n1, n2, container, parentComponent)
 				}
@@ -50,10 +50,16 @@ export function createRenderer(options) {
 		container.append(el)
 	}
 
-	function processElement(n1: any, n2: any, container: any, parentComponent) {
+	function processElement(
+		n1: any,
+		n2: any,
+		container: any,
+		parentComponent,
+		anchor
+	) {
 		console.log("processElement", n1, n2)
 		if (!n1) {
-			mountElement(n2, container, parentComponent)
+			mountElement(n2, container, parentComponent, anchor)
 		} else {
 			patchElement(n1, n2, container, parentComponent)
 		}
@@ -97,6 +103,9 @@ export function createRenderer(options) {
 
 		// Text -> Text
 		if (shapeFlag & ShapeFlags.TEXT_CHILDREN) {
+			if (prevShapeFlag & ShapeFlags.ARRAY_CHILDREN) {
+				unMountedChildren(n1)
+			}
 			if (oldChidlren !== newChildren) {
 				hostSetElementText(el, newChildren)
 			}
@@ -104,38 +113,80 @@ export function createRenderer(options) {
 			if (prevShapeFlag & ShapeFlags.TEXT_CHILDREN) {
 				hostSetElementText(el, "")
 				mountChildren(n2, el, parentComponent)
-			}
-		}
+			} else {
+				if (prevShapeFlag & ShapeFlags.ARRAY_CHILDREN) {
+					// Array -> Array
 
-		// Array -> Text
-		if (prevShapeFlag & ShapeFlags.ARRAY_CHILDREN) {
-			if (shapeFlag & ShapeFlags.TEXT_CHILDREN) {
-				unMountedChildren(n1)
-				hostSetElementText(el, newChildren)
-			} else if (shapeFlag & ShapeFlags.ARRAY_CHILDREN) {
-				if (oldChidlren.length === newChildren.length) {
-					newChildren.forEach((child, index) => {
-						if (child.type === oldChidlren[index].type) {
-							if (child.children !== oldChidlren[index].children) {
-								el.children[index].textContent = child.children
-							}
-						}
-					})
+					patchKeyedChildren(oldChidlren, newChildren, el, parentComponent)
 				}
 			}
 		}
+	}
+
+	function patchKeyedChildren(
+		oldChildren,
+		newChildren,
+		container,
+		parentComponent
+	) {
+		let i = 0
+
+		let e1 = oldChildren.length - 1
+		let e2 = newChildren.length - 1
+
+		function isSameVNodeType(n1, n2) {
+			return n1.type === n2.type && n1.key === n2.key
+		}
+
+		while (i <= e1 && i <= e2) {
+			if (isSameVNodeType(oldChildren[i], newChildren[i])) {
+				patch(oldChildren[i], newChildren[i], container, parentComponent)
+			} else {
+				// if (oldChildren[i].shapeFlag & ShapeFlags.TEXT_CHILDREN) {
+				// 	hostSetElementText(oldChildren[i].el, newChildren[i].children)
+				// }
+				break
+			}
+
+			i++
+		}
+
+		while (i <= e2 && i <= e1) {
+			if (isSameVNodeType(oldChildren[e1], newChildren[e2])) {
+				e1--
+				e2--
+			} else {
+				break
+			}
+		}
+
+		if (i > e1) {
+			const nextPos = e1 + 1
+			const anchor =
+				nextPos > oldChildren.length - 1 ? null : oldChildren[nextPos].el
+			while (i <= e2) {
+				patch(null, newChildren[i], container, parentComponent, anchor)
+				i++
+			}
+		} else if (i > e2) {
+			while (i <= e1) {
+				hostRemove(oldChildren[i].el)
+				i++
+			}
+		}
+
+		console.log(i, e1, e2)
 	}
 
 	function unMountedChildren(n1: any) {
 		n1.children.forEach((child) => {
 			const el = child.el
 			hostRemove(el)
-			// el.parentNode.removeChild(el)
 		})
 	}
 
 	// 将组件的元素渲染到页面上
-	function mountElement(n2: any, container: any, parentComponent) {
+	function mountElement(n2: any, container: any, parentComponent, anchor) {
 		const { type, props, children } = n2
 		const el = (n2.el = createElement(type))
 		for (const key in props) {
@@ -151,7 +202,7 @@ export function createRenderer(options) {
 		} else if (n2.shapeFlag & ShapeFlags.ARRAY_CHILDREN) {
 			mountChildren(n2, el, parentComponent)
 		}
-		insert(el, container)
+		hostInsert(el, container, anchor)
 	}
 
 	// 挂载children 变量children数组 递归调用patch(拆包)

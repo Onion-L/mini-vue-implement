@@ -57,7 +57,6 @@ export function createRenderer(options) {
 		parentComponent,
 		anchor
 	) {
-		console.log("processElement", n1, n2)
 		if (!n1) {
 			mountElement(n2, container, parentComponent, anchor)
 		} else {
@@ -69,7 +68,6 @@ export function createRenderer(options) {
 		const oldProps = n1.props || {}
 		const newProps = n2.props || {}
 		const el = (n2.el = n1.el)
-		console.log("patchElement container", container)
 
 		patchProps(el, oldProps, newProps)
 		patchChildren(n1, n2, el, parentComponent)
@@ -142,9 +140,6 @@ export function createRenderer(options) {
 			if (isSameVNodeType(oldChildren[i], newChildren[i])) {
 				patch(oldChildren[i], newChildren[i], container, parentComponent)
 			} else {
-				// if (oldChildren[i].shapeFlag & ShapeFlags.TEXT_CHILDREN) {
-				// 	hostSetElementText(oldChildren[i].el, newChildren[i].children)
-				// }
 				break
 			}
 
@@ -173,9 +168,48 @@ export function createRenderer(options) {
 				hostRemove(oldChildren[i].el)
 				i++
 			}
-		}
+		} else {
+			const s1 = i,
+				s2 = i
 
-		console.log(i, e1, e2)
+			const toBePatched = e2 - s2 + 1
+			let patched = 0
+
+			const keyMap = new Map()
+			// 将检测出来的中间部分的节点取出
+
+			for (let i = s2; i <= e2; i++) {
+				if (newChildren[i].key != null) {
+					keyMap.set(newChildren[i].key, i)
+				} else {
+					keyMap.set(i, i)
+				}
+			}
+
+			// 使用老节点进行比较
+			for (let i = s1; i <= e1; i++) {
+				if (patched >= toBePatched) {
+					hostRemove(oldChildren[i].el)
+					continue
+				}
+
+				if (oldChildren[i].key != null) {
+					const newIndex = keyMap.get(oldChildren[i].key)
+					if (!newIndex) {
+						hostRemove(oldChildren[i].el)
+					} else {
+						patch(
+							oldChildren[i],
+							newChildren[newIndex],
+							container,
+							parentComponent,
+							null
+						)
+						patched++
+					}
+				}
+			}
+		}
 	}
 
 	function unMountedChildren(n1: any) {
@@ -227,14 +261,12 @@ export function createRenderer(options) {
 	function setupRenderEffect(instance: any, vnode: any, container: any) {
 		effect(() => {
 			if (!instance.isMounted) {
-				console.log("init")
 				const { proxy } = instance
 				const subTree = (instance.subTree = instance.render.call(proxy))
 				patch(null, subTree, container, instance)
 				vnode.el = subTree.el
 				instance.isMounted = true
 			} else {
-				console.log("update")
 				const { proxy } = instance
 				const subTree = instance.render.call(proxy)
 				const prevSubTree = instance.subTree

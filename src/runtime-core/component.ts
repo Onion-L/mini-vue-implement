@@ -44,7 +44,6 @@ function setupStatefulComponent(instance: any) {
 		const setupContext = createSetupContext(instance)
 
 		const setupResult = setup(shallowReadonly(instance.props), setupContext)
-		console.log("setupResult", setupResult)
 		handleSetupResult(instance, setupResult)
 	}
 	setCurrentInstance(null)
